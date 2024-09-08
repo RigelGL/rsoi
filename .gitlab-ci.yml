@@ -9,7 +9,7 @@ stages:
 swagger:
   stage: swagger
   script:
-    - go mod download
+    - go install github.com/swaggo/swag/cmd/swag@latest
     - swag init
 
 test:
