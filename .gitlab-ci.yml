@@ -21,7 +21,7 @@ test:
     paths:
       - docs/
   script:
-    - go test -с -o ./... rsoi
+    - go test -с -o rsoi
 
 build:
   stage: build
