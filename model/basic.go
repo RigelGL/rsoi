@@ -3,7 +3,7 @@ package model
 type ArrayResult[T any] struct {
 	Pages int `json:"pages" `
 	Count int `json:"count"`
-	Items []T `json:"items"`
+	Items []T `json:"items" swaggerignore:"true"`
 }
 
 func NewArrayResult[T any](count int, limit int, items []T) *ArrayResult[T] {

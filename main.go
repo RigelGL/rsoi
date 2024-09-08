@@ -18,7 +18,7 @@ import (
 // @description Апи для лабы 1
 // @contact.name RigelLab
 // @contact.url https://t.me/rigellab
-// @host localhost:43430
+// @host rsoi.rigellab.ru
 // @BasePath /api/v1
 func main() {
 
