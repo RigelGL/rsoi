@@ -1,9 +1,15 @@
 image: golang:latest
 
 stages:
+  - swagger
   - test
   - build
   - deploy
+
+swagger:
+  stage: swagger
+  script:
+    - swag init
 
 test:
   stage: test
