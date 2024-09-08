@@ -9,6 +9,7 @@ stages:
 swagger:
   stage: swagger
   script:
+    - go mod
     - swag init
 
 test:
