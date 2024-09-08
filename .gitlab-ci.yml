@@ -8,12 +8,18 @@ stages:
 
 swagger:
   stage: swagger
+  artifacts:
+    paths:
+      - docs/
   script:
     - go mod download
     - swag init
 
 test:
   stage: test
+  artifacts:
+    paths:
+      - docs/
   script:
     - go test -с -o ./... rsoi
 
@@ -26,11 +32,19 @@ build:
     - go build -o rsoi .
   artifacts:
     paths:
+      - docs/
       - public
       - rsoi
+  cache:
+    paths:
+      - frontend/node_modules
+    policy: pull-push
 
 deploy:
   stage: deploy
+  artifacts:
+    paths:
+      - docs/
   image: docker:latest
   script:
     - docker-compose up -d
