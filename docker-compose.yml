@@ -1,0 +1,36 @@
+version: '3'
+networks:
+  backend:
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    restart: on-failure
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./postgres/:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go
+    restart: on-failure
+    depends_on:
+      - postgres
+    networks:
+      - backend
+    ports:
+      - "43430:43430"
+
+volumes:
+  db-data:
