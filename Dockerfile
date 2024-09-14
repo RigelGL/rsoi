@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY . .
 
-RUN swag init
+RUN #swag init
 RUN go build -o main .
 
 EXPOSE 8080

@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
+	//"github.com/gofiber/swagger"
 	"os"
-	_ "rsoi/docs"
+	//_ "rsoi/docs"
 
 	_ "github.com/lib/pq"
 
@@ -50,7 +50,7 @@ func main() {
 	v1 := app.Group("/api/v1")
 	BindApi(v1, db)
 
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	//app.Get("/swagger/*", swagger.HandlerDefault)
 
 	app.Static("/", "public")
 

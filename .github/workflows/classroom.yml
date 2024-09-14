@@ -16,6 +16,12 @@ jobs:
           fetch-depth: 0
 
       # TODO build, test and deploy project
+      - name: build
+
+      - name: test
+
+      - name: deploy
+
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
