@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"log"
+	"net/http"
 	"rsoi/model"
+	"strconv"
 )
 
 var db *sql.DB
@@ -20,29 +21,13 @@ var db *sql.DB
 func getPersons(c *fiber.Ctx) error {
 	search := c.Query("search", "")
 
-	var res model.PersonData
-	var persons []model.PersonData
-	rows, err := db.Query(
-		`SELECT id, name, age, address, work
-				FROM person
-				WHERE name ILIKE $1
-				   OR address ILIKE $1
-				   OR work ILIKE $1
-				ORDER BY id`,
-		fmt.Sprintf("%%%s%%", search))
-	defer rows.Close()
+	persons, err := findPersons(search)
 
-	if err != nil {
-		c.Status(500)
-		log.Fatalln(err)
+	if err.code == 500 {
+		return c.Status(500).Send(nil)
 	}
 
-	for rows.Next() {
-		rows.Scan(&res.Id, &res.Name, &res.Age, &res.Address, &res.Work)
-		persons = append(persons, res)
-	}
-
-	return c.JSON(model.NewArrayResult[model.PersonData](len(persons), len(persons), persons))
+	return c.JSON(persons.Items)
 }
 
 // @Summary     Пользователь
@@ -54,21 +39,19 @@ func getPersons(c *fiber.Ctx) error {
 // @failure 404 "Пользователь не найден"
 // @Router      /persons/{id} [get]
 func getPerson(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id, idErr := strconv.Atoi(c.Params("id"))
 
-	row := db.QueryRow(
-		`SELECT id, name, age, address, work
-				FROM person
-				WHERE id = $1`,
-		id)
-	var res model.PersonData
+	if idErr != nil {
+		return c.Status(400).Send(nil)
+	}
 
-	err := row.Scan(&res.Id, &res.Name, &res.Age, &res.Address, &res.Work)
-	if err != nil {
+	var person, err = findPersonById(id)
+
+	if err.code == 404 {
 		return c.Status(404).Send(nil)
 	}
 
-	return c.JSON(res)
+	return c.JSON(person)
 }
 
 // @Summary     Создание пользователя
@@ -83,21 +66,17 @@ func addPerson(c *fiber.Ctx) error {
 	u := new(model.PersonRequest)
 
 	if err := c.BodyParser(u); err != nil {
-		return c.Status(400).SendString(err.Error())
+		return c.Status(http.StatusBadRequest).SendString(err.Error())
 	}
 
-	var id int
-	err := db.QueryRow(
-		`INSERT INTO person (name, age, address, work)
-				VALUES ($1, $2, $3, $4)
-				RETURNING id`,
-		u.Name, u.Age, u.Address, u.Work).Scan(&id)
-	if err != nil {
-		return c.Status(500).SendString(err.Error())
+	id, err := addNewPerson(u)
+
+	if err.code == 500 {
+		return c.Status(http.StatusInternalServerError).Send(nil)
 	}
 
 	c.Set("Location", fmt.Sprintf("/api/v1/persons/%v", id))
-	return c.Status(201).Send(nil)
+	return c.Status(http.StatusCreated).Send(nil)
 }
 
 // @Summary     Обновление пользователя
@@ -110,30 +89,30 @@ func addPerson(c *fiber.Ctx) error {
 // @failure 404 "Пользователь не найден"
 // @Router      /persons/{id} [patch]
 func updatePerson(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id, idErr := strconv.Atoi(c.Params("id"))
+
+	if idErr != nil {
+		return c.Status(http.StatusBadRequest).Send(nil)
+	}
 
 	u := new(model.PersonRequest)
 
 	if err := c.BodyParser(u); err != nil {
-		return c.Status(400).SendString(err.Error())
+		return c.Status(http.StatusBadRequest).SendString(err.Error())
 	}
 
-	res, err := db.Exec(
-		`UPDATE person
-				SET name=$1,
-					age=$2,
-					address=$3,
-					work=$4
-				WHERE id = $5`,
-		u.Name, u.Age, u.Address, u.Work, id)
-	if amount, _ := res.RowsAffected(); amount == 0 {
-		return c.Status(404).Send(nil)
+	err := updatePersonById(id, u)
+
+	if err.code == 404 {
+		return c.Status(http.StatusNotFound).Send(nil)
 	}
-	if err != nil {
-		return c.Status(500).SendString(err.Error())
+	if err.code == 500 {
+		return c.Status(http.StatusInternalServerError).Send(nil)
 	}
 
-	return c.Status(204).Send(nil)
+	person, err := findPersonById(id)
+
+	return c.Status(http.StatusOK).JSON(person)
 }
 
 // @Summary     Удаление пользователя
@@ -143,23 +122,23 @@ func updatePerson(c *fiber.Ctx) error {
 // @failure 404 "Пользователь не найден"
 // @Router      /persons/{id} [delete]
 func deletePerson(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id, idErr := strconv.Atoi(c.Params("id"))
 
-	var count int
-	err := db.QueryRow(
-		`WITH deleted AS (DELETE FROM person WHERE id = $1 RETURNING id)
-				SELECT count(*)
-				FROM deleted`,
-		id).Scan(&count)
-	if err != nil {
-		return c.Status(500).SendString(err.Error())
+	if idErr != nil {
+		return c.Status(http.StatusBadRequest).Send(nil)
 	}
 
-	if count == 0 {
-		return c.Status(404).Send(nil)
+	err := deletePersonById(id)
+
+	if err.code == 404 {
+		return c.Status(http.StatusNotFound).Send(nil)
 	}
 
-	return c.Status(204).Send(nil)
+	if err.code == 500 {
+		return c.Status(http.StatusInternalServerError).Send(nil)
+	}
+
+	return c.Status(http.StatusNoContent).Send(nil)
 }
 
 func BindApi(router fiber.Router, database *sql.DB) {

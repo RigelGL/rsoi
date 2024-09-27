@@ -185,9 +185,9 @@ export default {
             this.personsStore.getPersons({search: this.search}).then(e => {
                 if (e.status !== 200) return
 
-                this.persons = e.json.items;
-                this.count = e.json.count;
-                this.pages = e.json.pages;
+                this.persons = e.json; //.items;
+                this.count = this.persons.length;// e.json.count;
+                this.pages = 1; //e.json.pages;
             });
         }
     },

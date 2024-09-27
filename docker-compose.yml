@@ -4,18 +4,17 @@ networks:
 
 services:
   postgres:
-    image: postgres:13
+    image: postgres:16
     container_name: postgres
     restart: on-failure
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: postgres
+      POSTGRES_DB: persons
     volumes:
-      - db-data:/var/lib/postgresql/data
       - ./postgres/:/docker-entrypoint-initdb.d/
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - backend
 
@@ -25,6 +24,10 @@ services:
       dockerfile: Dockerfile
     container_name: go
     restart: on-failure
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: "postgres"
+      DB_NAME: persons
     depends_on:
       - postgres
     networks:

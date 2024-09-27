@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	//"github.com/gofiber/swagger"
+	"github.com/gofiber/swagger"
 	"os"
-	//_ "rsoi/docs"
+	_ "rsoi/docs"
 
 	_ "github.com/lib/pq"
 
@@ -21,6 +21,9 @@ import (
 // @host rsoi.rigellab.ru
 // @BasePath /api/v1
 func main() {
+
+	// TODO: newman
+	// TODO: юнит тесты на бд (sqlite)
 
 	dbName, exists := os.LookupEnv("DB_NAME")
 	if !exists {
@@ -37,10 +40,10 @@ func main() {
 		dbPassword = "test"
 	}
 
-	fmt.Sprintf("USE DB %v %v %v", dbName, dbUser, dbPassword)
+	log.Printf("USE DB %v %v %v", dbName, dbUser, dbPassword)
 
 	var err error
-	db, err := sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@localhost:5432/"+dbName+"?sslmode=disable")
+	db, err := sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432/"+dbName+"?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,7 +53,7 @@ func main() {
 	v1 := app.Group("/api/v1")
 	BindApi(v1, db)
 
-	//app.Get("/swagger/*", swagger.HandlerDefault)
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	app.Static("/", "public")
 
