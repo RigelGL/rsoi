@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"rsoi/model"
 )
 
-type DbaError struct {
+type DbStatus struct {
 	code int
 }
 
-func findPersons(search string) (*model.ArrayResult[model.PersonData], DbaError) {
+func findPersons(search string) (*model.ArrayResult[model.PersonData], DbStatus) {
 	var res model.PersonData
 	var persons = []model.PersonData{}
 	rows, err := db.Query(
@@ -23,7 +24,8 @@ func findPersons(search string) (*model.ArrayResult[model.PersonData], DbaError)
 	defer rows.Close()
 
 	if err != nil {
-		return nil, DbaError{code: 500}
+		log.Println(err)
+		return nil, DbStatus{code: 500}
 	}
 
 	for rows.Next() {
@@ -31,10 +33,10 @@ func findPersons(search string) (*model.ArrayResult[model.PersonData], DbaError)
 		persons = append(persons, res)
 	}
 
-	return model.NewArrayResult[model.PersonData](len(persons), len(persons), persons), DbaError{code: 0}
+	return model.NewArrayResult[model.PersonData](len(persons), len(persons), persons), DbStatus{code: 0}
 }
 
-func findPersonById(id int) (model.PersonData, DbaError) {
+func findPersonById(id int) (model.PersonData, DbStatus) {
 	row := db.QueryRow(
 		`SELECT id, name, age, address, work
 				FROM person
@@ -44,13 +46,14 @@ func findPersonById(id int) (model.PersonData, DbaError) {
 
 	err := row.Scan(&res.Id, &res.Name, &res.Age, &res.Address, &res.Work)
 	if err != nil {
-		return res, DbaError{code: 404}
+		log.Println(err)
+		return res, DbStatus{code: 404}
 	}
 
-	return res, DbaError{code: 0}
+	return res, DbStatus{code: 0}
 }
 
-func addNewPerson(request *model.PersonRequest) (int, DbaError) {
+func addNewPerson(request *model.PersonRequest) (int, DbStatus) {
 	var id int
 	err := db.QueryRow(
 		`INSERT INTO person (name, age, address, work)
@@ -58,12 +61,13 @@ func addNewPerson(request *model.PersonRequest) (int, DbaError) {
 				RETURNING id`,
 		request.Name, request.Age, request.Address, request.Work).Scan(&id)
 	if err != nil {
-		return 0, DbaError{code: 500}
+		log.Println(err)
+		return 0, DbStatus{code: 500}
 	}
-	return id, DbaError{code: 0}
+	return id, DbStatus{code: 0}
 }
 
-func updatePersonById(id int, request *model.PersonRequest) DbaError {
+func updatePersonById(id int, request *model.PersonRequest) DbStatus {
 	person, personErr := findPersonById(id)
 
 	if personErr.code == 0 {
@@ -93,15 +97,16 @@ func updatePersonById(id int, request *model.PersonRequest) DbaError {
 				WHERE id = $5`,
 		request.Name, request.Age, request.Address, request.Work, id)
 	if amount, _ := res.RowsAffected(); amount == 0 {
-		return DbaError{code: 404}
+		return DbStatus{code: 404}
 	}
 	if err != nil {
-		return DbaError{code: 500}
+		log.Println(err)
+		return DbStatus{code: 500}
 	}
-	return DbaError{code: 0}
+	return DbStatus{code: 0}
 }
 
-func deletePersonById(id int) DbaError {
+func deletePersonById(id int) DbStatus {
 	var count int
 	err := db.QueryRow(
 		`WITH deleted AS (DELETE FROM person WHERE id = $1 RETURNING id)
@@ -109,12 +114,13 @@ func deletePersonById(id int) DbaError {
 				FROM deleted`,
 		id).Scan(&count)
 	if err != nil {
-		return DbaError{code: 500}
+		log.Println(err)
+		return DbStatus{code: 500}
 	}
 
 	if count == 0 {
-		return DbaError{code: 404}
+		return DbStatus{code: 404}
 	}
 
-	return DbaError{code: 0}
+	return DbStatus{code: 0}
 }

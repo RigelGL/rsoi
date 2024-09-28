@@ -10,25 +10,33 @@ import (
 	"testing"
 )
 
-var TestDb *sql.DB
-
 func TestMain(m *testing.M) {
-	adminConnect := "postgresql://postgres:123456Aa!@localhost:5432?sslmode=disable"
+	dbUser, exists := os.LookupEnv("DB_USER")
+	if !exists {
+		dbUser = "program"
+	}
 
-	db, err := sql.Open("postgres", adminConnect)
+	dbPassword, exists := os.LookupEnv("DB_PASSWORD")
+	if !exists {
+		dbPassword = "test"
+	}
+
+	log.Printf("USE TEST DB %v %v", dbUser, dbPassword)
+
+	var err error
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432/?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	tmpDBName := fmt.Sprintf("test_%d", os.Getpid())
-	if _, err := db.Exec("CREATE DATABASE " + tmpDBName); err != nil {
+	if _, err := db.Exec("CREATE DATABASE $1", tmpDBName); err != nil {
 		log.Fatal(err)
 	}
-
 	fmt.Printf("CREATED %v\n", tmpDBName)
 	db.Close()
 
-	TestDb, err = sql.Open("postgres", "postgresql://postgres:123456Aa!@localhost:5432/"+tmpDBName+"?sslmode=disable")
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432/"+tmpDBName+"?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,10 +44,6 @@ func TestMain(m *testing.M) {
 	entries, err := os.ReadDir("./postgres")
 
 	if err != nil {
-		TestDb.Close()
-		db, err = sql.Open("postgres", adminConnect)
-		db.Exec("DROP DATABASE " + tmpDBName)
-
 		log.Fatal(err)
 	}
 
@@ -58,13 +62,11 @@ func TestMain(m *testing.M) {
 		data, err := os.ReadFile("./postgres/" + file)
 		if err == nil {
 			migration := string(data)
-			_, err := TestDb.Exec(migration)
+			_, err := db.Exec(migration)
 
 			if err != nil {
-				TestDb.Close()
-				db, err = sql.Open("postgres", adminConnect)
-				db.Exec("DROP DATABASE " + tmpDBName)
-
+				db.Exec("DROP DATABASE $1", tmpDBName)
+				db.Close()
 				log.Fatal(err)
 			}
 		}
@@ -72,11 +74,11 @@ func TestMain(m *testing.M) {
 
 	retCode := m.Run()
 
-	TestDb.Close()
-	db, err = sql.Open("postgres", adminConnect)
-	if _, err := db.Exec("DROP DATABASE " + tmpDBName); err != nil {
+	if _, err := db.Exec("DROP DATABASE $1", tmpDBName); err != nil {
 		log.Fatal(err)
 	}
+
+	db.Close()
 
 	os.Exit(retCode)
 }

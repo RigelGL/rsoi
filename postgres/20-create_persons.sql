@@ -1,9 +1,4 @@
--- file: 10-create_user_and_db.sql
--- CREATE DATABASE persons;
-CREATE ROLE program WITH PASSWORD 'test';
-GRANT ALL PRIVILEGES ON DATABASE persons TO program;
-ALTER ROLE program WITH LOGIN;
-
+-- file: 20-create_persons.sql
 create table IF NOT EXISTS person
 (
     id   serial8      not null

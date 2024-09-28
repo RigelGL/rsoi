@@ -1,15 +1,12 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"rsoi/model"
 	"strconv"
 )
-
-var db *sql.DB
 
 // @Summary     Поиск пользователей
 // @Tags        persons
@@ -141,9 +138,7 @@ func deletePerson(c *fiber.Ctx) error {
 	return c.Status(http.StatusNoContent).Send(nil)
 }
 
-func BindApi(router fiber.Router, database *sql.DB) {
-	db = database
-
+func BindApi(router fiber.Router) {
 	persons := router.Group("persons", func(c *fiber.Ctx) error {
 		c.Set("Content-Type", "application/json")
 		return c.Next()

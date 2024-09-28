@@ -13,6 +13,8 @@ import (
 	"log"
 )
 
+var db *sql.DB
+
 // @title Persons API
 // @version 0.1
 // @description Апи для лабы 1
@@ -22,7 +24,6 @@ import (
 // @BasePath /api/v1
 func main() {
 
-	// TODO: newman
 	// TODO: юнит тесты на бд (sqlite)
 
 	dbName, exists := os.LookupEnv("DB_NAME")
@@ -43,7 +44,7 @@ func main() {
 	log.Printf("USE DB %v %v %v", dbName, dbUser, dbPassword)
 
 	var err error
-	db, err := sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432/"+dbName+"?sslmode=disable")
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432/"+dbName+"?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,7 +52,7 @@ func main() {
 	app := fiber.New()
 
 	v1 := app.Group("/api/v1")
-	BindApi(v1, db)
+	BindApi(v1)
 
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
