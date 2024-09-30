@@ -7,6 +7,18 @@ on:
     branches:
       - master
 jobs:
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Up Compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          services: test
+
   build:
     name: Autograding
     runs-on: ubuntu-latest
@@ -15,13 +27,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      # TODO build, test and deploy project
-      - name: build
-
-      - name: test
-
-      - name: deploy
-
+      - name: Build
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          services: app
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master

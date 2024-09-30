@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var personId = 0
+var personId int64 = 0
 
 func Test_CreatePerson(t *testing.T) {
 	var name = "User"
@@ -24,10 +24,10 @@ func Test_CreatePerson(t *testing.T) {
 	res, err := findPersonById(id)
 	assert.Equal(t, 0, err.code)
 
-	assert.Equal(t, name, res.Name)
-	assert.Equal(t, age, res.Age)
-	assert.Equal(t, work, res.Work)
-	assert.Equal(t, address, res.Address)
+	assert.Equal(t, name, *res.Name)
+	assert.Equal(t, age, *res.Age)
+	assert.Equal(t, work, *res.Work)
+	assert.Equal(t, address, *res.Address)
 }
 
 func Test_GetPerson(t *testing.T) {
@@ -35,10 +35,10 @@ func Test_GetPerson(t *testing.T) {
 
 	assert.Equal(t, 0, err.code)
 	assert.Equal(t, personId, res.Id)
-	assert.Equal(t, "User", res.Name)
-	assert.Equal(t, 10, res.Age)
-	assert.Equal(t, "No", res.Work)
-	assert.Equal(t, "City", res.Address)
+	assert.Equal(t, "User", *res.Name)
+	assert.Equal(t, int32(10), *res.Age)
+	assert.Equal(t, "No", *res.Work)
+	assert.Equal(t, "City", *res.Address)
 }
 
 func Test_UpdatePerson(t *testing.T) {
@@ -52,9 +52,9 @@ func Test_UpdatePerson(t *testing.T) {
 	res, err := findPersonById(personId)
 	assert.Equal(t, 0, err.code)
 	assert.Equal(t, personId, res.Id)
-	assert.Equal(t, "User", res.Name)
-	assert.Equal(t, "NoUpd", res.Work)
-	assert.Equal(t, "CityUpd", res.Address)
+	assert.Equal(t, "User", *res.Name)
+	assert.Equal(t, "NoUpd", *res.Work)
+	assert.Equal(t, "CityUpd", *res.Address)
 }
 
 func Test_PersonsList(t *testing.T) {
@@ -62,7 +62,7 @@ func Test_PersonsList(t *testing.T) {
 
 	assert.Equal(t, 0, err.code)
 	assert.Equal(t, 1, len(persons.Items))
-	assert.Equal(t, "User", persons.Items[0].Name)
+	assert.Equal(t, "User", *persons.Items[0].Name)
 }
 
 func Test_DeletePerson(t *testing.T) {

@@ -10,8 +10,4 @@ RUN go mod tidy
 
 COPY . .
 
-RUN go test
-
-EXPOSE 43430
-
-ENTRYPOINT ["./main"]
+CMD go test

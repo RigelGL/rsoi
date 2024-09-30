@@ -36,7 +36,7 @@ func getPersons(c *fiber.Ctx) error {
 // @failure 404 "Пользователь не найден"
 // @Router      /persons/{id} [get]
 func getPerson(c *fiber.Ctx) error {
-	id, idErr := strconv.Atoi(c.Params("id"))
+	id, idErr := strconv.ParseInt(c.Params("id"), 10, 64)
 
 	if idErr != nil {
 		return c.Status(400).Send(nil)
@@ -86,7 +86,7 @@ func addPerson(c *fiber.Ctx) error {
 // @failure 404 "Пользователь не найден"
 // @Router      /persons/{id} [patch]
 func updatePerson(c *fiber.Ctx) error {
-	id, idErr := strconv.Atoi(c.Params("id"))
+	id, idErr := strconv.ParseInt(c.Params("id"), 10, 64)
 
 	if idErr != nil {
 		return c.Status(http.StatusBadRequest).Send(nil)
@@ -119,7 +119,7 @@ func updatePerson(c *fiber.Ctx) error {
 // @failure 404 "Пользователь не найден"
 // @Router      /persons/{id} [delete]
 func deletePerson(c *fiber.Ctx) error {
-	id, idErr := strconv.Atoi(c.Params("id"))
+	id, idErr := strconv.ParseInt(c.Params("id"), 10, 64)
 
 	if idErr != nil {
 		return c.Status(http.StatusBadRequest).Send(nil)

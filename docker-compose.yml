@@ -9,12 +9,26 @@ services:
     restart: on-failure
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: persons
     volumes:
       - ./postgres/:/docker-entrypoint-initdb.d/
     ports:
       - "5433:5432"
+    networks:
+      - backend
+
+  test:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    container_name: go-test
+    restart: no
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: "postgres"
+    depends_on:
+      - postgres
     networks:
       - backend
 

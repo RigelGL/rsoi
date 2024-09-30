@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
 	"sort"
@@ -11,32 +12,32 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	dbUser, exists := os.LookupEnv("DB_USER")
-	if !exists {
-		dbUser = "program"
+	dbUser := os.Getenv("DB_USER")
+	if dbUser == "" {
+		dbUser = "postgres"
 	}
 
-	dbPassword, exists := os.LookupEnv("DB_PASSWORD")
-	if !exists {
-		dbPassword = "test"
+	dbPassword := os.Getenv("DB_PASSWORD")
+	if dbPassword == "" {
+		dbPassword = "postgres"
 	}
 
-	log.Printf("USE TEST DB %v %v", dbUser, dbPassword)
+	log.Printf("USE TEST DB ACCESS %v %v", dbUser, dbPassword)
 
 	var err error
-	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432/?sslmode=disable")
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	tmpDBName := fmt.Sprintf("test_%d", os.Getpid())
-	if _, err := db.Exec("CREATE DATABASE $1", tmpDBName); err != nil {
+	if _, err := db.Exec("CREATE DATABASE " + tmpDBName); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("CREATED %v\n", tmpDBName)
 	db.Close()
 
-	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432/"+tmpDBName+"?sslmode=disable")
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres/"+tmpDBName+"?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,8 +66,12 @@ func TestMain(m *testing.M) {
 			_, err := db.Exec(migration)
 
 			if err != nil {
-				db.Exec("DROP DATABASE $1", tmpDBName)
 				db.Close()
+
+				db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432?sslmode=disable")
+				if err == nil {
+					db.Exec("DROP DATABASE " + tmpDBName)
+				}
 				log.Fatal(err)
 			}
 		}
@@ -74,11 +79,12 @@ func TestMain(m *testing.M) {
 
 	retCode := m.Run()
 
-	if _, err := db.Exec("DROP DATABASE $1", tmpDBName); err != nil {
-		log.Fatal(err)
-	}
-
 	db.Close()
+
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432?sslmode=disable")
+	if err == nil {
+		db.Exec("DROP DATABASE " + tmpDBName)
+	}
 
 	os.Exit(retCode)
 }

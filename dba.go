@@ -36,7 +36,7 @@ func findPersons(search string) (*model.ArrayResult[model.PersonData], DbStatus)
 	return model.NewArrayResult[model.PersonData](len(persons), len(persons), persons), DbStatus{code: 0}
 }
 
-func findPersonById(id int) (model.PersonData, DbStatus) {
+func findPersonById(id int64) (model.PersonData, DbStatus) {
 	row := db.QueryRow(
 		`SELECT id, name, age, address, work
 				FROM person
@@ -53,8 +53,8 @@ func findPersonById(id int) (model.PersonData, DbStatus) {
 	return res, DbStatus{code: 0}
 }
 
-func addNewPerson(request *model.PersonRequest) (int, DbStatus) {
-	var id int
+func addNewPerson(request *model.PersonRequest) (int64, DbStatus) {
+	var id int64
 	err := db.QueryRow(
 		`INSERT INTO person (name, age, address, work)
 				VALUES ($1, $2, $3, $4)
@@ -67,7 +67,7 @@ func addNewPerson(request *model.PersonRequest) (int, DbStatus) {
 	return id, DbStatus{code: 0}
 }
 
-func updatePersonById(id int, request *model.PersonRequest) DbStatus {
+func updatePersonById(id int64, request *model.PersonRequest) DbStatus {
 	person, personErr := findPersonById(id)
 
 	if personErr.code == 0 {
@@ -106,7 +106,7 @@ func updatePersonById(id int, request *model.PersonRequest) DbStatus {
 	return DbStatus{code: 0}
 }
 
-func deletePersonById(id int) DbStatus {
+func deletePersonById(id int64) DbStatus {
 	var count int
 	err := db.QueryRow(
 		`WITH deleted AS (DELETE FROM person WHERE id = $1 RETURNING id)
