@@ -55,9 +55,9 @@ jobs:
           retry-delay: 10s
           retry-all: false
 
-  autograding:
+  api_tests:
     needs: [deploy]
-    name: Autograding
+    name: Api tests (newman)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -76,6 +76,15 @@ jobs:
           environment: postman/[inst][render] Lab1.postman_environment.json
           delayRequest: 100
           reporters: '[ "cli" ]'
+
+  autograding:
+    needs: [api_tests]
+    name: Autograding
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Autograding
         uses: education/autograding@v1

@@ -74,6 +74,9 @@ func main() {
 		return nil
 	})
 
-	port := 43430
+	port, exists := os.LookupEnv("PORT")
+	if !exists {
+		port = "43430"
+	}
 	log.Fatalln(app.Listen(fmt.Sprintf(":%v", port)))
 }
