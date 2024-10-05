@@ -6,12 +6,11 @@ services:
     dockerContext: .
     dockerfilePath: ./Dockerfile
     envVars:
-      DB_PASSWORD: postgres
-      DB_NAME: persons
-
-databases:
-  - name: postgres
-    diskSizeGB: 1
-    databaseName: persons
-    user: postgres
-    postgresMajorVersion: 16
+      - key: DB_USER
+        value: main
+      - key: DB_PASSWORD
+        value: I8SW6B1qLNefcNoYFK8T40xjaVxFPyfl
+      - key: DB_NAME
+        value: persons_8lz8
+      - key: DB_HOST
+        value: dpg-cs0fq6rtq21c73ec29cg-a

@@ -41,10 +41,15 @@ func main() {
 		dbPassword = "test"
 	}
 
+	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "postgres"
+	}
+
 	log.Printf("USE DB %v %v %v", dbName, dbUser, dbPassword)
 
 	var err error
-	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432/"+dbName+"?sslmode=disable")
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@"+dbHost+"/"+dbName+"?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}

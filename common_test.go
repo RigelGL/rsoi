@@ -22,10 +22,15 @@ func TestMain(m *testing.M) {
 		dbPassword = "postgres"
 	}
 
+	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "postgres"
+	}
+
 	log.Printf("USE TEST DB ACCESS %v %v", dbUser, dbPassword)
 
 	var err error
-	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres:5432?sslmode=disable")
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@"+dbHost+"?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +42,7 @@ func TestMain(m *testing.M) {
 	fmt.Printf("CREATED %v\n", tmpDBName)
 	db.Close()
 
-	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@postgres/"+tmpDBName+"?sslmode=disable")
+	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@"+dbHost+"/"+tmpDBName+"?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
