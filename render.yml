@@ -1,0 +1,18 @@
+services:
+  - type: web
+    plan: free
+    name: go-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env:
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: persons
+  - type: db
+    name: postgres
+    image: postgres:16
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: persons
