@@ -26,7 +26,8 @@ services:
     restart: no
     environment:
       DB_USER: postgres
-      DB_PASSWORD: "postgres"
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
     depends_on:
       - postgres
     networks:
@@ -40,7 +41,7 @@ services:
     restart: on-failure
     environment:
       DB_USER: postgres
-      DB_PASSWORD: "postgres"
+      DB_PASSWORD: postgres
       DB_NAME: persons
     depends_on:
       - postgres

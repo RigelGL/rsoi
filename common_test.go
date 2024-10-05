@@ -27,7 +27,7 @@ func TestMain(m *testing.M) {
 		dbHost = "postgres"
 	}
 
-	log.Printf("USE TEST DB ACCESS %v %v", dbUser, dbPassword)
+	log.Printf("USE TEST DB ACCESS %v %v host %v", dbUser, dbPassword, dbHost)
 
 	var err error
 	db, err = sql.Open("postgres", "postgresql://"+dbUser+":"+dbPassword+"@"+dbHost+"?sslmode=disable")
