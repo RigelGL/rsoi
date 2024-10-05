@@ -24,8 +24,7 @@ func Test_CreatePerson(t *testing.T) {
 	res, err := findPersonById(id)
 	assert.Equal(t, 0, err.code)
 
-	// special error
-	assert.Equal(t, name, res.Name)
+	assert.Equal(t, name, *res.Name)
 	assert.Equal(t, age, *res.Age)
 	assert.Equal(t, work, *res.Work)
 	assert.Equal(t, address, *res.Address)
