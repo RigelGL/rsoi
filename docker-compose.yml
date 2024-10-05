@@ -27,7 +27,7 @@ services:
     environment:
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_HOST: postgres
+      DB_HOST: postgres:5432
     depends_on:
       - postgres
     networks:
