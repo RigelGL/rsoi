@@ -3,11 +3,9 @@ services:
     plan: free
     name: go-app
     runtime: docker
-    build:
-      context: .
-      dockerfile: Dockerfile
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
     envVars:
-      DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: persons
 
