@@ -56,6 +56,11 @@ func main() {
 
 	app := fiber.New()
 
+	app.Get("/health", func(c *fiber.Ctx) error {
+		c.Status(200)
+		return c.JSON(fiber.Map{"simpleDimple": true})
+	})
+
 	v1 := app.Group("/api/v1")
 	BindApi(v1)
 
