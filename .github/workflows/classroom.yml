@@ -7,19 +7,48 @@ on:
     branches:
       - master
 jobs:
-  test:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Up Compose (App)
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          services: app
+
+  local_tests:
+    needs: [build]
     name: Testing
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Up Compose
+      - name: Up Compose (Test)
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
           services: test
 
-  build:
+  deploy:
+    needs: [local_tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Deployment to render
+        uses: JorgeLNJunior/render-deploy@v1.4.4
+        with:
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          service_id: ${{ secrets.RENDER_SERVICE_ID }}
+          wait_deploy: true
+
+
+  autograding:
+    needs: [deploy]
     name: Autograding
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +65,7 @@ jobs:
         uses: matt-ball/newman-action@master
         with:
           collection: postman/[inst] Lab1.postman_collection.json
-          environment: postman/[inst][heroku] Lab1.postman_environment.json
+          environment: postman/[inst][render] Lab1.postman_environment.json
           delayRequest: 100
           reporters: '[ "cli" ]'
 

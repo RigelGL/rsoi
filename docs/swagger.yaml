@@ -31,7 +31,7 @@ definitions:
       work:
         type: string
     type: object
-host: rsoi.rigellab.ru
+host: rsoi-awsy.onrender.com
 info:
   contact:
     name: RigelLab

@@ -18,7 +18,7 @@
 * `PATCH /persons/{personId}` – обновление существующей записи о человеке;
 * `DELETE /persons/{personId}` – удаление записи о человеке.
 
-Swagger: https://rsoi.rigellab.ru/swagger
+Swagger: https://rsoi-awsy.onrender.com/swagger
 
 ### Детали
 
@@ -30,6 +30,6 @@ Swagger: https://rsoi.rigellab.ru/swagger
   Header `Location: /api/v1/persons/{personId}`, где `personId` – id созданной записи.
 * Приложение содержит 5 unit-тестов на реализованные операции.
 * Приложение запускается в Docker.
-* Деплой на https://rsoi.rigellab.ru реализован с помощью GitLab CI/CD
+* Деплой на https://rsoi-awsy.onrender.com реализован с помощью GitHub actions
 * Приложение использует PostgreSQL  для хранения записей.
-* https://rsoi.rigellab.ru - простое SPA на vue, использующее реализованное API
+* https://rsoi-awsy.onrender.com - простое SPA на vue, использующее реализованное API

@@ -9,7 +9,7 @@
         },
         "version": "0.1"
     },
-    "host": "rsoi.rigellab.ru",
+    "host": "rsoi-awsy.onrender.com",
     "basePath": "/api/v1",
     "paths": {
         "/persons": {
