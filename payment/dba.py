@@ -39,9 +39,10 @@ class Dba:
         try:
             self.conn = psycopg2.connect(dbname=name, user=user, password=password, host=host)
             print('Connected to PostgreSQL ' + host + '/' + name + ', as ' + user)
-        except:
+        except Exception as e:
             self.conn = None
             print('Can`t establish connection to database')
+            print(e)
 
     def init_database(self):
         f = open('res/init.sql', 'r', encoding='utf-8')
