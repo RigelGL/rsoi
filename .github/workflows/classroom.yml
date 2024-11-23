@@ -28,13 +28,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          entrypoint: persons
 
       - run: go mod tidy
+        working-directory: persons
       - run: go build -o main .
+        working-directory: persons
 
       - run: go test
+        working-directory: persons
         env:
           DB_USER: postgres
           DB_PASSWORD: postgres
@@ -61,10 +62,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          entrypoint: payment
 
       - run: python -m unittest test.py
+        working-directory: payment
         env:
           DB_USER: postgres
           DB_PASSWORD: postgres
@@ -91,18 +91,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          entrypoint: loyalty
 
       - run: apt-get update && apt-get install -y maven && mvn dependency:go-offline
+        working-directory: loyalty
       - run: mvn test
+        working-directory: loyalty
         env:
           DB_USER: postgres
           DB_PASSWORD: postgres
           DB_HOST: postgres:5432
 
   deploy:
-    needs: [persons_test, payment_test, loyalty_test]
+    needs: [ persons_test, payment_test, loyalty_test ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
