@@ -21,10 +21,9 @@ class TestDao(unittest.TestCase):
         if not Dba.create_test_database(TestDao._database_name, host=DB_HOST, user=DB_USER, password=DB_PASSWORD):
             print('Error creating database')
             return False
+        print('Created database {}'.format(TestDao._database_name))
 
-        print('Test db', TestDao._database_name, DB_HOST, DB_USER)
         TestDao.dba = Dba(name=TestDao._database_name, host=DB_HOST, user=DB_USER, password=DB_PASSWORD)
-        print(TestDao.dba)
         TestDao.dba.init_database()
 
     @classmethod
@@ -35,6 +34,8 @@ class TestDao(unittest.TestCase):
 
         if not Dba.drop_test_database(TestDao._database_name, host=DB_HOST, user=DB_USER, password=DB_PASSWORD):
             print('Error drop database')
+        else:
+            print('Dropped database {}'.format(TestDao._database_name))
 
     def test_not_found(self):
         self.assertEqual(TestDao.dba.get_payment('unef'), None, 'Should be None')
