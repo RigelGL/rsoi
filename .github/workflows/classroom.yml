@@ -63,6 +63,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - run: pip install -r requirements.txt
+        working-directory: payment
       - run: python -m unittest test.py
         working-directory: payment
         env:
@@ -74,7 +76,7 @@ jobs:
     name: Loyalty test
     runs-on: ubuntu-latest
     container:
-      image: eclipse-temurin:17-jdk-jammy
+      image: maven:3.8.8-eclipse-temurin-21-alpine
 
     services:
       postgres:
@@ -92,7 +94,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - run: apt-get update && apt-get install -y maven && mvn dependency:go-offline
+      - run: mvn dependency:go-offline
         working-directory: loyalty
       - run: mvn test
         working-directory: loyalty
