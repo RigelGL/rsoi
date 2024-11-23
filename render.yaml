@@ -1,0 +1,23 @@
+
+services:
+  - type: web
+    runtime: docker
+    name: loyalty
+    rootDir: loyalty
+    healthCheckPath: /manage/health
+    envVars:
+      - key: DB_HOST
+        value: postgres
+      - key: DB_NAME
+        value: loyalty
+      - key: DB_USER
+        value: postgres
+      - key: DB_PASSWORD
+        value: postgres
+      - key: APP_PORT
+        value: 8050
+
+databases:
+  - name: loyalty
+    databaseName: loyalty
+    user: postgres
