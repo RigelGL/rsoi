@@ -16,7 +16,7 @@ class TestDao(unittest.TestCase):
         DB_USER = os.getenv('DB_USER')
         DB_PASSWORD = os.getenv('DB_PASSWORD')
 
-        TestDao._database_name = 'payment_test_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        TestDao._database_name = 'payment_test_' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
 
         if not Dba.create_test_database(TestDao._database_name, host=DB_HOST, user=DB_USER, password=DB_PASSWORD):
             print('Error creating database')
