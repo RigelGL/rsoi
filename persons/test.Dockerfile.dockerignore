@@ -1,5 +1,0 @@
-.idea
-.dockerignore
-.env
-test.Dockerfile
-test.Dockerfile.dockerignore

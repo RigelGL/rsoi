@@ -1,9 +1,7 @@
 .idea
 venv
 .venv
-docker-compose.yaml
 Dockerfile
-test.Dockerfile
 test.http
 .dockerignore
 .env
