@@ -70,7 +70,7 @@ jobs:
         env:
           DB_USER: postgres
           DB_PASSWORD: postgres
-          DB_HOST: postgres
+          DB_HOST: postgres:5432
 
   loyalty_test:
     name: Loyalty test
