@@ -1,8 +1,9 @@
 attrs==24.2.0
-blinker==1.8.2
+blinker==1.9.0
 click==8.1.7
+colorama==0.4.6
 flasgger==0.9.7b2
-Flask==3.0.3
+Flask==3.1.0
 itsdangerous==2.2.0
 Jinja2==3.1.4
 jsonschema==4.23.0
@@ -18,4 +19,5 @@ referencing==0.35.1
 rpds-py==0.20.1
 setuptools==51.0.0
 six==1.16.0
+waitress==3.0.2
 Werkzeug==3.1.1

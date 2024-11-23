@@ -8,7 +8,6 @@ export class PersonThirdService {
 
     constructor() {
         this.url = process.env.PERSON_URL;
-        console.log(process.env);
     }
 
     async getAllRawPersons(): Promise<PersonInfo[]> {
@@ -19,7 +18,6 @@ export class PersonThirdService {
     }
 
     async getPersonByName(name: string): Promise<PersonInfo | null> {
-        console.log('URL', `${this.url}/api/v1/persons/byName?name=${name}`);
         const resp = await fetch(`${this.url}/api/v1/persons/byName?name=${name}`);
         if (resp.status !== 200)
             return null;

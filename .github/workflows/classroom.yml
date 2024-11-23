@@ -18,9 +18,9 @@ jobs:
         with:
           services: app
 
-  local_tests:
+  persons_test:
     needs: [build]
-    name: Testing
+    name: Persons test
     runs-on: ubuntu-latest
     container:
       image: golang:1.23.1-alpine
@@ -50,8 +50,37 @@ jobs:
           DB_PASSWORD: postgres
           DB_HOST: postgres:5432
 
+  payment_test:
+    needs: [build]
+    name: Payment test
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.12.7-alpine3.20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - run: python -m unittest
+        env:
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: postgres
+
   deploy:
-    needs: [local_tests]
+    needs: [persons_test, payment_test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -73,48 +102,3 @@ jobs:
           max-attempts: 10
           retry-delay: 10s
           retry-all: false
-
-  api_tests:
-    needs: [deploy]
-    name: Api tests (newman)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Build
-        uses: hoverkraft-tech/compose-action@v2.0.1
-        with:
-          services: app
-
-      - name: Run API Tests
-        uses: matt-ball/newman-action@master
-        with:
-          collection: postman/[inst] Lab1.postman_collection.json
-          environment: postman/[inst][render] Lab1.postman_environment.json
-          delayRequest: 100
-          reporters: '[ "cli" ]'
-
-  autograding:
-    needs: [api_tests]
-    name: Autograding
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Autograding
-        uses: education/autograding@v1
-        continue-on-error: true
-
-      - name: Github auto grader mark
-        uses: Romanow/google-sheet-autograder-marker@v1.0
-        with:
-          google_token: ${{secrets.GOOGLE_API_KEY}}
-          sheet_id: "1xkgjUX6Qmk7rdJG-QPOToav-HWWtthJjnShIKnw3oIY"
-          homework_number: 1
-          user_column: 'D'
-          column_offset: 'F'
-          mark: "'+"

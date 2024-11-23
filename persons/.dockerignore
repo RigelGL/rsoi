@@ -1,3 +1,5 @@
-.github
 .idea
-frontend
+.dockerignore
+.env
+test.Dockerfile
+test.Dockerfile.dockerignore

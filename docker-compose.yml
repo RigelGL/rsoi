@@ -51,6 +51,8 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: persons
       APP_PORT: 8040
+    ports:
+      - "8040:8040"
     depends_on:
       - postgres
     networks:
@@ -68,6 +70,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       APP_PORT: 8050
+    ports:
+      - "8050:8050"
     depends_on:
       - postgres
     networks:
@@ -85,6 +89,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       APP_PORT: 8060
+    ports:
+      - "8060:8060"
     depends_on:
       - postgres
     networks:
@@ -102,6 +108,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       APP_PORT: 8070
+    ports:
+      - "8070:8070"
     depends_on:
       - postgres
     networks:

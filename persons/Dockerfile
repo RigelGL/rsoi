@@ -4,16 +4,13 @@ RUN apk update && apk upgrade && apk add --no-cache
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY ./go.mod ./go.mod
 
 RUN go mod tidy
 
 COPY . .
 
-RUN #swag init
 RUN go build -o main .
-
-EXPOSE 43430
 
 ENTRYPOINT ["./main"]
 
