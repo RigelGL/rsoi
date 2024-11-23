@@ -7,19 +7,7 @@ on:
     branches:
       - master
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Up Compose (App)
-        uses: hoverkraft-tech/compose-action@v2.0.1
-        with:
-          services: app
-
   persons_test:
-    needs: [build]
     name: Persons test
     runs-on: ubuntu-latest
     container:
@@ -51,7 +39,6 @@ jobs:
           DB_HOST: postgres:5432
 
   payment_test:
-    needs: [build]
     name: Payment test
     runs-on: ubuntu-latest
     container:
@@ -79,8 +66,36 @@ jobs:
           DB_PASSWORD: postgres
           DB_HOST: postgres
 
+  loyalty_test:
+    name: Loyalty test
+    runs-on: ubuntu-latest
+    container:
+      image: eclipse-temurin:17-jdk-jammy
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - run: apt-get update && apt-get install -y maven && mvn dependency:go-offline
+      - run: mvn test
+        env:
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: postgres:5432
+
   deploy:
-    needs: [persons_test, payment_test]
+    needs: [persons_test, payment_test, loyalty_test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
