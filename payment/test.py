@@ -22,7 +22,9 @@ class TestDao(unittest.TestCase):
             print('Error creating database')
             return False
 
+        print('Test db', TestDao._database_name, DB_HOST, DB_USER)
         TestDao.dba = Dba(name=TestDao._database_name, host=DB_HOST, user=DB_USER, password=DB_PASSWORD)
+        print(TestDao.dba)
         TestDao.dba.init_database()
 
     @classmethod
