@@ -23,7 +23,7 @@ FROM golang:1.23.1-alpine
 
 # COPY --from=build /app/docs/swagger.* /app/docs
 COPY --from=build /app/main /app/main
-
+COPY ./res ./res
 # EXPOSE 43430
 
 ENTRYPOINT ["/app/main"]

@@ -1,4 +1,3 @@
--- file: 20-create_persons.sql
 create table IF NOT EXISTS person
 (
     id   serial8      not null

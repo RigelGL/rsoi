@@ -1,0 +1,7 @@
+### get user
+GET http://127.0.0.1:8051/loyalty?name=max
+X-User-Name: 123
+
+### update
+POST http://127.0.0.1:8051/update?type=dec
+X-User-Name: 123

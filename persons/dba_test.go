@@ -15,13 +15,13 @@ func Test_CreatePerson(t *testing.T) {
 	var work = "No"
 	var address = "City"
 
-	id, err := addNewPerson(&model.PersonRequest{Name: &name, Age: &age, Work: &work, Address: &address})
+	id, err := GetDba().addNewPerson(&model.PersonRequest{Name: &name, Age: &age, Work: &work, Address: &address})
 
 	personId = id
 
 	assert.Equal(t, 0, err.code)
 
-	res, err := findPersonById(id)
+	res, err := GetDba().findPersonById(id)
 	assert.Equal(t, 0, err.code)
 
 	assert.Equal(t, name, *res.Name)
@@ -31,7 +31,7 @@ func Test_CreatePerson(t *testing.T) {
 }
 
 func Test_GetPerson(t *testing.T) {
-	res, err := findPersonById(personId)
+	res, err := GetDba().findPersonById(personId)
 
 	assert.Equal(t, 0, err.code)
 	assert.Equal(t, personId, res.Id)
@@ -45,11 +45,11 @@ func Test_UpdatePerson(t *testing.T) {
 	var age int32 = 12
 	var work = "NoUpd"
 	var address = "CityUpd"
-	err := updatePersonById(personId, &model.PersonRequest{Age: &age, Work: &work, Address: &address})
+	err := GetDba().updatePersonById(personId, &model.PersonRequest{Age: &age, Work: &work, Address: &address})
 
 	assert.Equal(t, 0, err.code)
 
-	res, err := findPersonById(personId)
+	res, err := GetDba().findPersonById(personId)
 	assert.Equal(t, 0, err.code)
 	assert.Equal(t, personId, res.Id)
 	assert.Equal(t, "User", *res.Name)
@@ -58,7 +58,7 @@ func Test_UpdatePerson(t *testing.T) {
 }
 
 func Test_PersonsList(t *testing.T) {
-	persons, err := findPersons("")
+	persons, err := GetDba().findPersons("")
 
 	assert.Equal(t, 0, err.code)
 	assert.Equal(t, 1, len(persons.Items))
@@ -66,12 +66,12 @@ func Test_PersonsList(t *testing.T) {
 }
 
 func Test_DeletePerson(t *testing.T) {
-	_, err := findPersonById(personId)
+	_, err := GetDba().findPersonById(personId)
 	assert.Equal(t, 0, err.code)
 
-	err = deletePersonById(personId)
+	err = GetDba().deletePersonById(personId)
 	assert.Equal(t, 0, err.code)
 
-	_, err = findPersonById(personId)
+	_, err = GetDba().findPersonById(personId)
 	assert.Equal(t, 404, err.code)
 }

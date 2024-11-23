@@ -18,13 +18,32 @@ import (
 func getPersons(c *fiber.Ctx) error {
 	search := c.Query("search", "")
 
-	persons, err := findPersons(search)
+	persons, err := GetDba().findPersons(search)
 
 	if err.code == 500 {
 		return c.Status(500).Send(nil)
 	}
 
 	return c.JSON(persons.Items)
+}
+
+// @Summary     Поиск пользователя по имени
+// @Tags        persons
+// @Accept      json
+// @Produce     json
+// @Param       name query string true "Поиск по имени"
+// @Success 200 {object} model.PersonData "Пользователь"
+// @Router      /persons/byName [get]
+func getPersonByName(c *fiber.Ctx) error {
+	name := c.Query("name", "")
+
+	person, err := GetDba().findPersonByName(name)
+
+	if err.code == 404 {
+		return c.Status(404).Send(nil)
+	}
+
+	return c.JSON(person)
 }
 
 // @Summary     Пользователь
@@ -42,7 +61,7 @@ func getPerson(c *fiber.Ctx) error {
 		return c.Status(400).Send(nil)
 	}
 
-	var person, err = findPersonById(id)
+	var person, err = GetDba().findPersonById(id)
 
 	if err.code == 404 {
 		return c.Status(404).Send(nil)
@@ -66,7 +85,7 @@ func addPerson(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).SendString(err.Error())
 	}
 
-	id, err := addNewPerson(u)
+	id, err := GetDba().addNewPerson(u)
 
 	if err.code == 500 {
 		return c.Status(http.StatusInternalServerError).Send(nil)
@@ -98,7 +117,7 @@ func updatePerson(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).SendString(err.Error())
 	}
 
-	err := updatePersonById(id, u)
+	err := GetDba().updatePersonById(id, u)
 
 	if err.code == 404 {
 		return c.Status(http.StatusNotFound).Send(nil)
@@ -107,7 +126,7 @@ func updatePerson(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).Send(nil)
 	}
 
-	person, err := findPersonById(id)
+	person, err := GetDba().findPersonById(id)
 
 	return c.Status(http.StatusOK).JSON(person)
 }
@@ -125,7 +144,7 @@ func deletePerson(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).Send(nil)
 	}
 
-	err := deletePersonById(id)
+	err := GetDba().deletePersonById(id)
 
 	if err.code == 404 {
 		return c.Status(http.StatusNotFound).Send(nil)
@@ -145,6 +164,7 @@ func BindApi(router fiber.Router) {
 	})
 
 	persons.Get("", getPersons)
+	persons.Get("byName", getPersonByName)
 	persons.Get(":id", getPerson)
 	persons.Post("", addPerson)
 	persons.Patch(":id", updatePerson)
