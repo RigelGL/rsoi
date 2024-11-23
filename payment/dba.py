@@ -15,7 +15,9 @@ class Dba:
             f.close()
             c.execute(sql)
             c.close()
+            conn.commit()
             conn.close()
+            print('Probably created db {}'.format(name))
             return True
         except Exception as e:
             print(e)
