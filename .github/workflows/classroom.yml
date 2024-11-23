@@ -65,12 +65,13 @@ jobs:
 
       - run: pip install -r requirements.txt
         working-directory: payment
+
       - run: python -m unittest test.py
         working-directory: payment
         env:
           DB_USER: postgres
           DB_PASSWORD: postgres
-          DB_HOST: postgres:5432
+          DB_HOST: postgres
 
   loyalty_test:
     name: Loyalty test
