@@ -10,19 +10,24 @@ export class ReservationThirdService {
     }
 
     async getHotels(page: number, size: number): Promise<Pagination<HotelInfo>> {
-        page ||= 1;
-        size ||= 20;
-        console.log(`${this.url}/hotels?page=${page}&size=${size}`);
-        const resp = await fetch(`${this.url}/hotels?page=${page}&size=${size}`);
-        if (resp.status !== 200) return null;
+        try {
+            page ||= 1;
+            size ||= 20;
+            console.log(`${this.url}/hotels?page=${page}&size=${size}`);
+            const resp = await fetch(`${this.url}/hotels?page=${page}&size=${size}`);
+            if (resp.status !== 200) return null;
 
-        const json = await resp.json();
+            const json = await resp.json();
 
-        return {
-            items: json.items,
-            totalElements: json.totalElements,
-            pageSize: size,
-            page
+            return {
+                items: json.items,
+                totalElements: json.totalElements,
+                pageSize: size,
+                page
+            }
+        } catch (e) {
+            console.log(e);
+            return null;
         }
     }
 

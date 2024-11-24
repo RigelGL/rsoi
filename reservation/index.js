@@ -13,6 +13,10 @@ app.get('/', (req, res) => res.send('Index'));
 const dba = new HotelDba(pool);
 dba.initTables();
 
+app.get('manage/health', async (req, res) => {
+    res.send('OK').end();
+});
+
 app.get('/hotels', async (req, res) => {
     const page = Math.max(1, +req.query.page || 0) - 1;
     const limit = Math.min(1000, Math.max(1, +req.query.limit || 0));
