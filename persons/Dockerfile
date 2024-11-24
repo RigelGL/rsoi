@@ -5,6 +5,7 @@ RUN apk update && apk upgrade && apk add --no-cache
 WORKDIR /app
 
 COPY ./go.mod ./go.mod
+COPY ./go.sum ./go.sum
 
 RUN go mod tidy
 
@@ -12,15 +13,9 @@ COPY . .
 
 RUN go build -o main .
 
-ENTRYPOINT ["./main"]
-
-# scratch
-
 FROM golang:1.23.1-alpine
 
-# COPY --from=build /app/docs/swagger.* /app/docs
 COPY --from=build /app/main /app/main
 COPY ./res ./res
-# EXPOSE 43430
 
 ENTRYPOINT ["/app/main"]

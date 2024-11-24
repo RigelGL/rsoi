@@ -7,17 +7,15 @@ services:
     healthCheckPath: /manage/health
     envVars:
       - key: DB_HOST
-        value: postgres
+        value: dpg-ct1kurt2ng1s73e7farg-a
       - key: DB_NAME
-        value: loyalty
+        value: main_uo8d
       - key: DB_USER
-        value: postgres
+        value: main_uo8d_user:qwASOBjozdWOki4RaKltjEGHY9aLwnfB
       - key: DB_PASSWORD
-        value: postgres
+        value: ""
       - key: APP_PORT
         value: 8050
 
 databases:
-  - name: loyalty
-    databaseName: loyalty
-    user: postgres
+  - name: main
