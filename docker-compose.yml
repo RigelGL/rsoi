@@ -58,7 +58,7 @@ services:
       DB_HOST: postgres
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_NAME: persons
+      DB_NAME: person
       APP_PORT: 8040
     ports:
       - "8040:8040"

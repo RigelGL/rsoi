@@ -104,25 +104,72 @@ jobs:
           DB_PASSWORD: postgres
           DB_HOST: postgres:5432
 
+  reservation_test:
+    name: Reservation test
+    runs-on: ubuntu-latest
+    container:
+      image: node:lts-alpine3.19
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - run: npm i
+        working-directory: reservation
+      - run: npm run test
+        working-directory: reservation
+        env:
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: postgres:5432
+
+  gateway_test:
+    name: Gateway test
+    runs-on: ubuntu-latest
+    container:
+      image: node:lts-alpine3.19
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - run: npm i
+        working-directory: gateway
+      - run: npm run test
+        working-directory: gateway
+
   deploy:
-    needs: [ persons_test, payment_test, loyalty_test ]
+    needs: [ persons_test, payment_test, loyalty_test, reservation_test, gateway_test ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Deployment to render
-        uses: JorgeLNJunior/render-deploy@v1.4.4
-        with:
-          api_key: ${{ secrets.RENDER_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          service_id: ${{ secrets.RENDER_SERVICE_ID }}
-          wait_deploy: true
+      - name: TODO Setup SSH
+        uses: shimataro/ssh-deploy-action@v1
 
-      - name: Check the deployed service URL
+      - name: TODO Copy Code
+        uses: shimataro/ssh-deploy-action@v1
+
+      - name: TODO Run Docker Compose
+        uses: shimataro/ssh-deploy-action@v1
+
+      - name: Check gateway health
         uses: jtalk/url-health-check-action@v4
         with:
-          url: https://rsoi-awsy.onrender.com/health
+          url: https://rsoi.rigellab.ru/manage/health
           follow-redirect: false
           max-attempts: 10
           retry-delay: 10s

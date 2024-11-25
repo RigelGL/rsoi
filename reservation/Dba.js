@@ -1,4 +1,6 @@
-export class HotelDba {
+const { raw } = require("express");
+
+class HotelDba {
 
     /** @type {Pool} */
     pool = null;
@@ -6,6 +8,10 @@ export class HotelDba {
     constructor(pool) {
         this.pool = pool;
         pool.query('SELECT VERSION() version').then(e => console.log(e.rows[0].version));
+    }
+
+    async close() {
+        await this.pool.end();
     }
 
     async initTables() {
@@ -49,12 +55,18 @@ export class HotelDba {
                         address,
                         stars,
                         price
-                 FROM hotels
-                 LIMIT $1 OFFSET $2`,
+                 FROM hotels LIMIT $1
+                 OFFSET $2`,
                 [limit, limit * page])).rows.map(e => this.__mapHotel(e))
         };
     }
 
+    async addHotel(hotel) {
+        return (await this.pool.query(
+            `INSERT INTO hotels (hotel_uid, name, country, city, address, stars, price)
+             VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6) RETURNING hotel_uid AS uid`,
+            [hotel.name, hotel.country, hotel.city, hotel.address, hotel.stars, hotel.price])).rows[0].uid;
+    }
 
     async findReservations(options) {
         const arr = [];
@@ -81,12 +93,13 @@ export class HotelDba {
                       INNER JOIN hotels h ON h.id = r.hotel_id
                  ${where.length ? 'WHERE ' + where.join(' AND ') : ''}`, arr)).rows.map(e => ({
             id: e.id,
+            userName: e.username,
             reservationUid: e.reservation_uid,
             payment: { paymentUid: e.payment_uid, },
             hotelUid: e.hotel_uid,
             status: e.status,
-            startDate: e.start_date,
-            endDate: e.end_date,
+            startDate: e.start_date.toISOString().substring(0, 10),
+            endDate: e.end_date.toISOString().substring(0, 10),
         }));
     }
 
@@ -110,12 +123,14 @@ export class HotelDba {
     async addReservation(userName, paymentUid, hotelId, startDate, endDate) {
         return (await this.pool.query(
             `INSERT INTO reservation (reservation_uid, username, payment_uid, hotel_id, status, start_date, end_date)
-             VALUES (gen_random_uuid(), $1, $2, $3, 'PAID', $4, $5)
-             RETURNING reservation_uid AS uid`,
-            [userName, paymentUid, hotelId, startDate, endDate])).rows[0].uid;
+             VALUES (gen_random_uuid(), $1, $2, $3, 'PAID', $4, $5) RETURNING reservation_uid AS uid`,
+            [userName, paymentUid, hotelId, startDate + 'Z', endDate + 'Z'])).rows[0].uid;
     }
 
     async cancelReservation(uid) {
-        await this.pool.query('UPDATE reservation SET status = $1 WHERE reservation_uid = $2', ['CANCELED', uid]);
+       return (await this.pool.query('UPDATE reservation SET status = $1 WHERE reservation_uid = $2', ['CANCELED', uid])).rowCount > 0;
     }
 }
+
+
+module.exports = { HotelDba };
