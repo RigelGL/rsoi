@@ -157,14 +157,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: TODO Setup SSH
-        uses: shimataro/ssh-deploy-action@v1
-
-      - name: TODO Copy Code
-        uses: shimataro/ssh-deploy-action@v1
-
-      - name: TODO Run Docker Compose
-        uses: shimataro/ssh-deploy-action@v1
+      - name: Deploy via SSH
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: /rsoi
+          EXCLUDE: "/.github/, /db-data/"
+          SCRIPT_AFTER: |
+            ls -al
+            docker-compose up -d
+            echo $RSYNC_STDOUT 
 
       - name: Check gateway health
         uses: jtalk/url-health-check-action@v4

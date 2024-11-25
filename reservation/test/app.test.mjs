@@ -1,5 +1,4 @@
 import pg from 'pg';
-import 'dotenv/config';
 import { expect } from 'chai';
 import supertest from 'supertest';
 import { HotelDba } from '../Dba.js';
