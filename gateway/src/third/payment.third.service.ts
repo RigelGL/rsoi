@@ -1,45 +1,57 @@
 import { Injectable } from "@nestjs/common";
 import { PaymentInfo } from "../api/dto";
-import { localBinExists } from "@nestjs/cli/lib/utils/local-binaries";
+import { Healthy } from "./Healthy";
 
 
 @Injectable()
-export class PaymentThirdService {
-    private readonly url: string;
+export class PaymentThirdService extends Healthy {
 
     constructor() {
-        this.url = process.env.PAYMENT_URL;
+        super(process.env.PAYMENT_URL, {
+            maxFails: 10,
+            failTimeoutMs: 60_000,
+            afterFailWaitMs: 10_000,
+            retryIntervalMs: 3_000,
+        });
     }
 
     private mapPayment(e): PaymentInfo {
         return { paymentUid: e.uid, status: e.status, price: e.price };
     }
 
-
     async addPayment(price: number) {
-        let res = await fetch(`${this.url}/payment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json; charset=utf-8' },
-            body: JSON.stringify({ price }),
-        });
-        if (res.status !== 200) return null;
+        let wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/payment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                body: JSON.stringify({ price }),
+            }),
+            null
+        );
+        if (wrapper.failed || wrapper.result?.status !== 200) return null;
 
-        const uid = (await res.json()).uid;
+        const uid = (await wrapper.result.json()).uid;
 
-        res = await fetch(`${this.url}/payment/${uid}`);
-        if (res.status !== 200) return null;
+        wrapper = await this.runWithProtect(async () => fetch(`${this.url}/payment/${uid}`));
+        if (wrapper.failed || wrapper.result?.status !== 200) return null;
 
-        return this.mapPayment(await res.json());
+        return this.mapPayment(await wrapper.result.json());
     }
 
     async getPayments(uids: string[]): Promise<PaymentInfo[]> {
-        const res = await fetch(`${this.url}/payments?uids=${JSON.stringify(uids)}`);
-        if (res.status !== 200) return null;
-        return (await res.json()).map(e => this.mapPayment(e));
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/payments?uids=${JSON.stringify(uids)}`),
+            null
+        );
+        if (wrapper.failed || wrapper.result?.status !== 200) return null;
+        return (await wrapper.result.json()).map(e => this.mapPayment(e));
     }
 
     async cancelPayment(uid: string) {
-        const res = await fetch(`${this.url}/payment/${uid}`, { method: 'DELETE' });
-        return res.status === 200;
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/payment/${uid}`, { method: 'DELETE' }),
+            null
+        );
+        return !wrapper.failed && wrapper.result?.status === 200;
     }
 }

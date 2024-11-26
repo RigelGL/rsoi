@@ -1,23 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { HotelInfo, Pagination, ReservationInfo } from "../api/dto";
+import { Healthy } from "./Healthy";
+import * as wasi from "node:wasi";
 
 @Injectable()
-export class ReservationThirdService {
-    private readonly url: string;
+export class ReservationThirdService extends Healthy {
 
     constructor() {
-        this.url = process.env.RESERVATION_URL;
+        super(process.env.RESERVATION_URL, {
+            maxFails: 5,
+            failTimeoutMs: 60_000,
+            afterFailWaitMs: 10_000,
+            retryIntervalMs: 3_000,
+        });
     }
 
     async getHotels(page: number, size: number): Promise<Pagination<HotelInfo>> {
         try {
             page ||= 1;
             size ||= 20;
-            console.log(`${this.url}/hotels?page=${page}&size=${size}`);
-            const resp = await fetch(`${this.url}/hotels?page=${page}&size=${size}`);
-            if (resp.status !== 200) return null;
 
-            const json = await resp.json();
+            const wrapper = await this.runWithProtect(
+                async () => fetch(`${this.url}/hotels?page=${page}&size=${size}`));
+            if (wrapper.failed || wrapper.result?.status !== 200) return null;
+
+            const json = await wrapper.result.json();
 
             return {
                 items: json.items,
@@ -26,21 +33,22 @@ export class ReservationThirdService {
                 page
             }
         } catch (e) {
-            console.log(e);
             return null;
         }
     }
 
     async getHotel(uid: string): Promise<HotelInfo> {
-        const resp = await fetch(`${this.url}/hotel/${uid}`);
-        if (resp.status !== 200) return null;
-        return await resp.json();
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/hotel/${uid}`));
+        if (wrapper.failed || wrapper.result?.status !== 200) return null;
+        return await wrapper.result.json();
     }
 
     async getReservations(options: { userName?: string, uid?: string }): Promise<ReservationInfo[]> {
-        const resp = await fetch(`${this.url}/reservations?${JSON.stringify(options)}`);
-        if (resp.status !== 200) return null;
-        return await resp.json();
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/reservations?${JSON.stringify(options)}`));
+        if (wrapper.failed || wrapper.result?.status !== 200) return [];
+        return await wrapper.result.json();
     }
 
     async addReservation(reservation: {
@@ -50,18 +58,21 @@ export class ReservationThirdService {
         startDate: string,
         endDate: string
     }): Promise<ReservationInfo> {
-        const resp = await fetch(`${this.url}/reservation`, {
-            method: 'POST',
-            headers: { 'Content-type': 'application/json; charset=utf-8' },
-            body: JSON.stringify(reservation),
-        });
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/reservation`, {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json; charset=utf-8' },
+                body: JSON.stringify(reservation),
+            })
+        );
 
-        if (resp.status !== 200) return null;
-        return await resp.json();
+        if (wrapper.failed || wrapper.result?.status !== 200) return null;
+        return await wrapper.result.json();
     }
 
     async cancelReservation(uid: string) {
-        const resp = await fetch(`${this.url}/reservation/${uid}`, { method: 'DELETE' });
-        return resp.status === 200;
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/reservation/${uid}`, { method: 'DELETE' }));
+        return wrapper.result?.status === 200;
     }
 }

@@ -8,6 +8,8 @@ import { CreateReservationWrapper } from "./wrapper";
 
 @Injectable()
 export class ApiService {
+    private cancelReservationsQueue: { paymentUid: string, loyaltyName: string }[];
+
     constructor(
         private readonly persons: PersonThirdService,
         private readonly payment: PaymentThirdService,
@@ -16,13 +18,41 @@ export class ApiService {
     ) {
     }
 
+    private async cancellationQueueExecutor() {
+        let i = 0;
+        // пока не дошли до конца очереди отмен
+        while (i < this.cancelReservationsQueue.length) {
+            // следующее удаляемое
+            const e = this.cancelReservationsQueue[i];
+
+            // нужно отменить оплату
+            if (e.paymentUid) {
+                if (await this.payment.cancelPayment(e.paymentUid))
+                    e.paymentUid = null;
+            }
+
+            // нужно понизить лояльность
+            if (e.loyaltyName) {
+                if (await this.loyalty.changeLoyaltyStatus(e.loyaltyName, 'dec'))
+                    e.loyaltyName = null;
+            }
+
+            if (!e.paymentUid && !e.loyaltyName)
+                this.cancelReservationsQueue.splice(i, 1);
+            else
+                i++;
+        }
+
+        setTimeout(this.cancellationQueueExecutor, 10_000);
+    }
+
     async getMe(userName: string): Promise<UserInfo> {
         const user = await this.persons.getPersonByName(userName) as UserInfo;
         if (!user)
             return null;
 
         user.reservations = await this.getMyReservations(userName) || [];
-        user.loyalty = await this.loyalty.getLoyaltyForUser(userName) || {};
+        user.loyalty = await this.loyalty.getLoyaltyForUser(userName) || this.loyalty.getDefaultFallback();
 
         return user;
     }
@@ -105,13 +135,19 @@ export class ApiService {
     }
 
     async cancelReservation(name: string, uid: string) {
-        const reservation = (await this.reservation.getReservations({userName: name, uid}))[0];
+        const reservation = (await this.reservation.getReservations({ userName: name, uid }))[0];
 
-        if(!reservation) return 'reservation';
+        if (!reservation || reservation.status === 'CANCELED') return 'reservation';
 
-        if(!await this.reservation.cancelReservation(uid)) return 'cancelReservation';
-        if(!await this.payment.cancelPayment(reservation.payment.paymentUid)) return 'payment';
-        if(!await this.loyalty.changeLoyaltyStatus(name, 'dec')) return 'loyalty';
+        if (!await this.reservation.cancelReservation(uid)) return 'cancelReservation';
+        if (!await this.payment.cancelPayment(reservation.payment.paymentUid)) {
+            this.cancelReservationsQueue.push({ paymentUid: reservation.payment.paymentUid, loyaltyName: name });
+            return null;
+        }
+        if (!await this.loyalty.changeLoyaltyStatus(name, 'dec')) {
+            this.cancelReservationsQueue.push({ paymentUid: null, loyaltyName: name });
+            return null;
+        }
         return null;
     }
 }

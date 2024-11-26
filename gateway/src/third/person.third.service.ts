@@ -1,37 +1,44 @@
 import { Injectable } from "@nestjs/common";
 import { PersonInfo, PersonRequest } from "../api/dto";
+import { Healthy } from "./Healthy";
 
 
 @Injectable()
-export class PersonThirdService {
-    private readonly url: string;
+export class PersonThirdService extends Healthy {
 
     constructor() {
-        this.url = process.env.PERSON_URL;
+        super(process.env.PERSON_URL, {
+            maxFails: 5,
+            failTimeoutMs: 60_000,
+            afterFailWaitMs: 10_000,
+            retryIntervalMs: 3_000,
+        });
     }
 
     async getAllRawPersons(): Promise<PersonInfo[]> {
-        const resp = await fetch(`${this.url}/api/v1/persons`);
-        if (resp.status !== 200)
-            return null;
-        return await resp.json();
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/api/v1/persons`));
+        if (wrapper.failed || wrapper.result?.status !== 200) return null;
+        return await wrapper.result.json();
     }
 
     async getPersonByName(name: string): Promise<PersonInfo | null> {
-        const resp = await fetch(`${this.url}/api/v1/persons/byName?name=${name}`);
-        if (resp.status !== 200)
-            return null;
-        return await resp.json();
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/api/v1/persons/byName?name=${name}`));
+        if (wrapper.failed || wrapper.result?.status !== 200) return null;
+        return await wrapper.result.json();
     }
 
     async addPerson(request: PersonRequest): Promise<PersonInfo | null> {
-        let resp = await fetch(`${this.url}/api/v1/persons`, {
-            method: 'POST',
-            headers: { 'Content-type': 'application/json;charset=utf-8' },
-            body: JSON.stringify(request),
-        });
-        if (resp.status !== 201) return null;
-
+        let wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/api/v1/persons`, {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json;charset=utf-8' },
+                body: JSON.stringify(request),
+            }),
+            null
+        );
+        if (wrapper.failed || wrapper.result?.status !== 201) return null;
         return await this.getPersonByName(request.name);
     }
 }
