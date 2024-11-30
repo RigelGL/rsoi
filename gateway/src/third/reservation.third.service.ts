@@ -44,6 +44,19 @@ export class ReservationThirdService extends Healthy {
         return await wrapper.result.json();
     }
 
+    async addHotel(hotel: HotelInfo) {
+        const wrapper = await this.runWithProtect(
+            async () => fetch(`${this.url}/hotel`, {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json; charset=utf-8' },
+                body: JSON.stringify(hotel),
+            })
+        );
+
+        if (wrapper.failed || wrapper.result?.status !== 200) return null;
+        return await wrapper.result.json();
+    }
+
     async getReservations(options: { userName?: string, uid?: string }): Promise<ReservationInfo[]> {
         const wrapper = await this.runWithProtect(
             async () => fetch(`${this.url}/reservations?s=${JSON.stringify(options)}`));

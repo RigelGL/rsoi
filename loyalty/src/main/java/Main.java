@@ -140,6 +140,28 @@ public class Main {
             }
         });
 
+        server.createContext("/force").setHandler(t -> {
+            if (!t.getRequestMethod().equals("POST")) {
+                t.close();
+                return;
+            }
+
+            try {
+                var query = parseQuery(t.getRequestURI().getQuery());
+                var userName = query.getOrDefault("name", null);
+                int reservations = Integer.parseInt(query.getOrDefault("reservations", "0"));
+                int discount = Integer.parseInt(query.getOrDefault("discount", "0"));
+                var status = query.getOrDefault("status", null);
+
+                var ok = LoyaltyService.getInstance().addOrUpdateLoyalty(userName, new LoyaltyDto(userName, status, discount, reservations));
+                t.sendResponseHeaders(ok ? 200 : 500, 0);
+                t.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                t.close();
+            }
+        });
+
         server.createContext("/manage/health").setHandler(t -> {
             var response = "OK".getBytes(StandardCharsets.US_ASCII);
             t.sendResponseHeaders(200, response.length);

@@ -23,7 +23,7 @@ export type HotelInfo = {
     country: string;
     city: string;
     address: string;
-    fullAddress: string;
+    fullAddress?: string;
     price: number;
     stars: number;
 };

@@ -37,4 +37,12 @@ export class LoyaltyThirdService extends Healthy {
             async () => fetch(`${this.url}/update?name=${name}&type=${type}`, { method: 'POST' }));
         return wrapper.result?.status === 200;
     }
+
+    async setForceForUser(name: string, info: LoyaltyInfo) {
+        const wrapper = await this.runWithProtect(async () => fetch(
+            `${this.url}/force?name=${name}&reservations=${info.reservationCount}&discount=${info.discount}&status=${info.status}`,
+            { method: 'POST' }
+        ));
+        return wrapper.result?.status === 200;
+    }
 }

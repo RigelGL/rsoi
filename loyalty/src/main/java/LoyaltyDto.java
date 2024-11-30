@@ -16,6 +16,13 @@ public class LoyaltyDto {
         discount = 0;
     }
 
+    public LoyaltyDto(String userName, String status, int discount, int reservationCount) {
+        this.userName = userName;
+        this.status = status;
+        this.discount = discount;
+        this.reservationCount = reservationCount;
+    }
+
     public LoyaltyDto(ResultSet rs) throws SQLException {
         id = rs.getLong("id");
         userName = rs.getString("username");

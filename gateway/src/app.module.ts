@@ -7,6 +7,7 @@ import { ReservationThirdService } from "./third/reservation.third.service";
 import { ApiController } from "./api/api.controller";
 import { PaymentThirdService } from "./third/payment.third.service";
 import { PersonThirdService } from "./third/person.third.service";
+import { AppService } from "./app.service";
 
 
 @Module({
@@ -14,6 +15,7 @@ import { PersonThirdService } from "./third/person.third.service";
     controllers: [AppController, ApiController],
     providers: [
         ApiService,
+        AppService,
         LoyaltyThirdService,
         PaymentThirdService,
         PersonThirdService,

@@ -10,8 +10,7 @@ function createApp(dba) {
             const page = Math.max(1, +req.query.page || 0) - 1;
             const limit = Math.min(1000, Math.max(1, +req.query.limit || 0));
             res.json(await dba.findHotels(page, limit));
-        }
-        catch (e) {
+        } catch (e) {
             res.send(e);
         }
     });
@@ -19,6 +18,21 @@ function createApp(dba) {
         const hotel = (await dba.findHotelsByUids([req.params.uid]))[0];
         if (!hotel) return res.status(404).end();
         res.json(hotel).end();
+    });
+
+    app.post('/hotel', async (req, res) => {
+        const body = req.body;
+        return {
+            uid: await dba.addHotelWithUid({
+                hotelUid: body.hotelUid,
+                name: body.name,
+                country: body.country,
+                city: body.city,
+                address: body.address,
+                stars: body.stars,
+                price: body.price
+            })
+        };
     });
 
     app.get('/reservations', async (req, res) => {
