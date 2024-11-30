@@ -201,7 +201,7 @@ jobs:
         run: docker compose down -v
 
   deploy:
-    needs: [ build ]
+    needs: [ autograding ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
