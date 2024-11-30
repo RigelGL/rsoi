@@ -35,7 +35,6 @@ export class ApiController {
     @Get('reservations/:uid')
     async getReservationForUser(@Headers('X-User-Name') name: string, @Param('uid') uid: string) {
         const reservation = (await this.service.getReservations({ userName: name, uid: uid }))[0];
-        console.log(uid, reservation?.reservationUid);
         if (!reservation) throw new NotFoundException();
         return reservation;
     }

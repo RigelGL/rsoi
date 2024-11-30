@@ -152,7 +152,6 @@ jobs:
         working-directory: gateway
 
   autograding:
-    needs: [ persons_test, payment_test, loyalty_test, reservation_test, gateway_test ]
     name: Autograding
     runs-on: ubuntu-latest
     steps:
@@ -169,6 +168,8 @@ jobs:
         timeout-minutes: 5
         run: |
           docker compose up -d
+          chmod +x ./scripts/wait-script.sh
+          chmod +x ./scripts/wait-for.sh
           ./scripts/wait-script.sh
         env:
           WAIT_PORTS: 8080,8070,8060,8050,8040
