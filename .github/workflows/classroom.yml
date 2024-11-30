@@ -151,8 +151,57 @@ jobs:
       - run: npm run test
         working-directory: gateway
 
-  deploy:
+  autograding:
     needs: [ persons_test, payment_test, loyalty_test, reservation_test, gateway_test ]
+    name: Autograding
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: docker/setup-buildx-action@v2
+      - name: Build images
+        timeout-minutes: 10
+        run: docker compose build
+
+      - name: Run containers
+        timeout-minutes: 5
+        run: |
+          docker compose up -d
+          ./scripts/wait-script.sh
+        env:
+          WAIT_PORTS: 8080,8070,8060,8050,8040
+
+      - name: Run API Tests
+        uses: matt-ball/newman-action@master
+        with:
+          collection: <variant>/postman/lab2.collection.json
+          environment: <variant>/postman/lab2.environment.json
+          delayRequest: 100
+          reporters: '[ "cli" ]'
+
+      - uses: education/autograding@v1
+        id: autograder
+        continue-on-error: true
+
+      - name: Github auto grader mark
+        uses: Romanow/google-sheet-autograder-marker@v1.0
+        with:
+          google_token: ${{secrets.GOOGLE_API_KEY}}
+          sheet_id: "1xkgjUX6Qmk7rdJG-QPOToav-HWWtthJjnShIKnw3oIY"
+          homework_number: 2
+          user_column: 'D'
+          column_offset: 'F'
+          mark: "'+"
+
+      - name: Stop containers
+        if: always()
+        continue-on-error: true
+        run: docker compose down -v
+
+  deploy:
+    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -179,25 +228,3 @@ jobs:
           max-attempts: 10
           retry-delay: 10s
           retry-all: false
-
-  api_tests:
-    needs: [ deploy ]
-    name: Api tests (newman)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Build
-        uses: hoverkraft-tech/compose-action@v2.0.1
-        with:
-          services: app
-
-      - name: Run API Tests
-        uses: matt-ball/newman-action@master
-        with:
-          collection: postman/lab2.collection.json
-          environment: postman/lab2.env.json
-          delayRequest: 100
-          reporters: '[ "cli" ]'
