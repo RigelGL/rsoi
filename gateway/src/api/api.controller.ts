@@ -23,7 +23,7 @@ export class ApiController {
     async getMe(@Headers('X-User-Name') name: string) {
         const person = await this.service.getMe(name);
         if (!person)
-            throw new GoneException();
+            throw new NotFoundException();
         return person;
     }
 
@@ -82,7 +82,7 @@ export class ApiController {
         return await this.persons.getAllRawPersons();
     }
 
-    @Post('persons')
+    @Post('person')
     @HttpCode(201)
     async createPerson(@Body() body: PersonRequest) {
         const person = await this.persons.addPerson(body);

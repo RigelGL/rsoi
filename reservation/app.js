@@ -33,9 +33,9 @@ function createApp(dba) {
                     stars: body.stars,
                     price: body.price
                 })
-            });
+            }).end();
         } catch (e) {
-            res.status(500);
+            res.status(500).end();
         }
     });
 

@@ -31,12 +31,12 @@ jobs:
         uses: actions/checkout@v4
 
       - run: go mod tidy
-        working-directory: persons
+        working-directory: person
       - run: go build -o main .
-        working-directory: persons
+        working-directory: person
 
       - run: go test
-        working-directory: persons
+        working-directory: person
         env:
           DB_USER: postgres
           DB_PASSWORD: postgres

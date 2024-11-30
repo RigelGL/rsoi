@@ -5,7 +5,7 @@ const router = createRouter({
     routes: [
         { path: '/login', name: 'signin', component: () => import('@/views/auth/SigninPage.vue'), meta: { layout: 'auth', guest: true } },
         { path: '/', name: 'home', component: () => import('@/views/HomeView.vue') },
-        { path: '/persons', name: 'persons', component: () => import('@/views/PersonsView.vue') },
+        { path: '/person', name: 'persons', component: () => import('@/views/PersonsView.vue') },
 
         { path: '/:pathMatch(.*)*', name: 'Error', component: () => import('@/views/error/NotFoundPage.vue'), meta: { layout: 'error', guest: true } },
     ]

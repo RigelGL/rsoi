@@ -65,7 +65,7 @@ paths:
               type: object
       summary: Поиск пользователей
       tags:
-      - persons
+      - person
     post:
       consumes:
       - application/json
@@ -83,7 +83,7 @@ paths:
           description: Ошибка в теле запроса
       summary: Создание пользователя
       tags:
-      - persons
+      - person
   /persons/{id}:
     delete:
       parameters:
@@ -99,7 +99,7 @@ paths:
           description: Пользователь не найден
       summary: Удаление пользователя
       tags:
-      - persons
+      - person
     get:
       consumes:
       - application/json
@@ -120,7 +120,7 @@ paths:
           description: Пользователь не найден
       summary: Пользователь
       tags:
-      - persons
+      - person
     patch:
       consumes:
       - application/json
@@ -145,5 +145,5 @@ paths:
           description: Пользователь не найден
       summary: Обновление пользователя
       tags:
-      - persons
+      - person
 swagger: "2.0"

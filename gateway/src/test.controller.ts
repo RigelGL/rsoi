@@ -10,6 +10,6 @@ export class TestController {
     @Post('/test/prepare')
     async prepareTestMock() {
         await this.service.prepareMockForTests();
-        return 'PREPARED';
+        return { status: 'PREPARED' };
     }
 }
