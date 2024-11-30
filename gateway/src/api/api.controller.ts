@@ -35,6 +35,7 @@ export class ApiController {
     @Get('reservations/:uid')
     async getReservationForUser(@Headers('X-User-Name') name: string, @Param('uid') uid: string) {
         const reservation = (await this.service.getReservations({ userName: name, uid: uid }))[0];
+        console.log(uid, reservation?.reservationUid);
         if (!reservation) throw new NotFoundException();
         return reservation;
     }
@@ -68,6 +69,7 @@ export class ApiController {
     }
 
     @Delete('reservations/:uid')
+    @HttpCode(204)
     async cancelReservation(@Headers('X-User-Name') name: string, @Param('uid') uid: string) {
         const err = await this.service.cancelReservation(name, uid);
         if (err === 'reservation') throw new NotFoundException(err);

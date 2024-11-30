@@ -18,6 +18,7 @@ export class Healthy {
         this.url = url;
         this.state = 'NORMAL';
         this.config = config;
+        this.fails = [];
     }
 
     private async checkHealth() {
