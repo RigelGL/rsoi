@@ -1,4 +1,4 @@
-import { Body, Controller, Get, InternalServerErrorException, Post, Query, Headers, NotFoundException, HttpCode, Delete, Param, BadGatewayException } from '@nestjs/common';
+import { Body, Controller, Get, InternalServerErrorException, Post, Query, Headers, NotFoundException, HttpCode, Delete, Param, BadGatewayException, GoneException } from '@nestjs/common';
 import { ApiService } from './api.service';
 import { PersonThirdService } from "../third/person.third.service";
 import { PaymentThirdService } from "../third/payment.third.service";
@@ -23,7 +23,7 @@ export class ApiController {
     async getMe(@Headers('X-User-Name') name: string) {
         const person = await this.service.getMe(name);
         if (!person)
-            throw new NotFoundException();
+            throw new GoneException();
         return person;
     }
 

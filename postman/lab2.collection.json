@@ -536,6 +536,26 @@
           ]
         },
         {
+          "name": "All users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test(\"All users\", () => {pm.expect(pm.response.json()).to.empty})"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rawPersons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rawPersons"]
+            }
+          }
+        },
+        {
           "name": "Информация о пользователе",
           "event": [
             {
