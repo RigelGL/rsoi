@@ -6,6 +6,7 @@ on:
   pull_request:
     branches:
       - master
+
 jobs:
   persons_test:
     name: Persons test
@@ -178,3 +179,25 @@ jobs:
           max-attempts: 10
           retry-delay: 10s
           retry-all: false
+
+  api_tests:
+    needs: [ deploy ]
+    name: Api tests (newman)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          services: app
+
+      - name: Run API Tests
+        uses: matt-ball/newman-action@master
+        with:
+          collection: postman/lab2.collection.json
+          environment: postman/lab2.env.json
+          delayRequest: 100
+          reporters: '[ "cli" ]'

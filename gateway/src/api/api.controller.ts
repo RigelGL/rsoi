@@ -57,6 +57,7 @@ export class ApiController {
 
 
     @Post('reservations')
+    @HttpCode(200)
     async addReservation(@Headers('X-User-Name') name: string, @Body() body: CreateReservationRequest) {
         const res = await this.service.createReservation(name, body);
 
