@@ -5,6 +5,7 @@ import { LoyaltyThirdService } from "./third/loyalty.third.service";
 import { PaymentThirdService } from "./third/payment.third.service";
 import { PersonThirdService } from "./third/person.third.service";
 import { ReservationThirdService } from "./third/reservation.third.service";
+import { AppService } from "./app.service";
 
 describe('AppController', () => {
     let appController: AppController;

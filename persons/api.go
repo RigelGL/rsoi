@@ -33,7 +33,7 @@ func getPersons(c *fiber.Ctx) error {
 // @Produce     json
 // @Param       name query string true "Поиск по имени"
 // @Success 200 {object} model.PersonData "Пользователь"
-// @Router      /persons/byName [get]
+// @Router      /persons/named [get]
 func getPersonByName(c *fiber.Ctx) error {
 	name := c.Query("name", "")
 
@@ -164,7 +164,7 @@ func BindApi(router fiber.Router) {
 	})
 
 	persons.Get("", getPersons)
-	persons.Get("byName", getPersonByName)
+	persons.Get("named", getPersonByName)
 	persons.Get(":id", getPerson)
 	persons.Post("", addPerson)
 	persons.Patch(":id", updatePerson)

@@ -1,20 +1,13 @@
-import { Controller, Get, Post } from '@nestjs/common';
-import { AppService } from "./app.service";
+import { Controller, Get } from '@nestjs/common';
 
 
 @Controller()
 export class AppController {
-    constructor(private readonly service: AppService) {
+    constructor() {
     }
 
     @Get('/manage/health')
-    async checkHealth() {
+    checkHealth() {
         return 'OK';
-    }
-
-    @Post('/test/prepare')
-    async prepareTestMock() {
-        await this.service.prepareMockForTests();
-        return 'PREPARED';
     }
 }

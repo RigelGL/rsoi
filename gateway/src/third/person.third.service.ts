@@ -24,7 +24,7 @@ export class PersonThirdService extends Healthy {
 
     async getPersonByName(name: string): Promise<PersonInfo | null> {
         const wrapper = await this.runWithProtect(
-            async () => fetch(`${this.url}/api/v1/persons/byName?name=${name}`));
+            async () => fetch(`${this.url}/api/v1/persons/named?name=${name}`));
         if (wrapper.failed || wrapper.result?.status !== 200) return null;
         return await wrapper.result.json();
     }
