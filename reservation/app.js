@@ -22,17 +22,21 @@ function createApp(dba) {
 
     app.post('/hotel', async (req, res) => {
         const body = req.body;
-        return {
-            uid: await dba.addHotelWithUid({
-                hotelUid: body.hotelUid,
-                name: body.name,
-                country: body.country,
-                city: body.city,
-                address: body.address,
-                stars: body.stars,
-                price: body.price
-            })
-        };
+        try {
+            res.json({
+                uid: await dba.addHotelWithUid({
+                    hotelUid: body.hotelUid,
+                    name: body.name,
+                    country: body.country,
+                    city: body.city,
+                    address: body.address,
+                    stars: body.stars,
+                    price: body.price
+                })
+            });
+        } catch (e) {
+            res.status(500);
+        }
     });
 
     app.get('/reservations', async (req, res) => {
